@@ -23,6 +23,7 @@
 Proyek ini adalah implementasi **Deep Learning** untuk klasifikasi gambar jenis-jenis tanaman secara otomatis. Model dilatih menggunakan dataset publik dari Kaggle yang berisi ribuan gambar tanaman dari berbagai spesies.
 
 ### Tujuan Utama:
+
 - Membangun model neural network yang dapat mengklasifikasikan berbagai jenis tanaman dari gambar
 - Mencapai akurasi tinggi dalam prediksi klasifikasi
 - Mengoptimalkan model untuk deployment di berbagai platform (web, mobile)
@@ -33,6 +34,7 @@ Proyek ini adalah implementasi **Deep Learning** untuk klasifikasi gambar jenis-
 ## 📊 Dataset
 
 ### Sumber Data
+
 - **Platform**: Kaggle
 - **Dataset**: [Plants Classification - marquis03/plants-classification](https://www.kaggle.com/datasets/marquis03/plants-classification)
 - **Jumlah Gambar**: Ribuan gambar tanaman
@@ -41,6 +43,7 @@ Proyek ini adalah implementasi **Deep Learning** untuk klasifikasi gambar jenis-
 - **Resolusi**: Distandarisasi menjadi 224x224 piksel
 
 ### Pembagian Data
+
 ```
 Dataset
 ├── train/        # Data training (60%)
@@ -49,12 +52,15 @@ Dataset
 ```
 
 ### Preprocessing Data
+
 - **Image Size**: 224 × 224 × 3 (RGB)
 - **Batch Size**: 32
 - **Normalisasi**: Rescaling 1/255
 
 ### Data Augmentation
+
 Model menggunakan augmentasi data untuk meningkatkan generalisasi:
+
 ```python
 - RandomFlip("horizontal")      # Flip gambar secara horizontal
 - RandomRotation(0.2)           # Rotasi hingga 20 derajat
@@ -92,15 +98,15 @@ Proyek ini menggunakan **MobileNetV2** sebagai pre-trained model dengan fine-tun
 
 ### Konfigurasi Model
 
-| Parameter | Nilai |
-|-----------|-------|
-| **Base Model** | MobileNetV2 (ImageNet weights) |
-| **Input Shape** | (224, 224, 3) |
-| **Optimizer** | Adam (learning_rate=0.0001) |
+| Parameter         | Nilai                           |
+| ----------------- | ------------------------------- |
+| **Base Model**    | MobileNetV2 (ImageNet weights)  |
+| **Input Shape**   | (224, 224, 3)                   |
+| **Optimizer**     | Adam (learning_rate=0.0001)     |
 | **Loss Function** | Sparse Categorical Crossentropy |
-| **Metrics** | Accuracy |
-| **Epochs** | 50 |
-| **Batch Size** | 32 |
+| **Metrics**       | Accuracy                        |
+| **Epochs**        | 50                              |
+| **Batch Size**    | 32                              |
 
 ### Training Callbacks
 
@@ -127,6 +133,7 @@ Untuk mengoptimalkan training, digunakan 3 callbacks utama:
 ### Metriks Evaluasi
 
 Model dievaluasi menggunakan:
+
 - **Test Accuracy**: Akurasi pada data testing
 - **Test Loss**: Loss value pada data testing
 - **Confusion Matrix**: Visualisasi prediksi vs actual label
@@ -135,6 +142,7 @@ Model dievaluasi menggunakan:
 ### Visualisasi Training
 
 Model menghasilkan visualisasi untuk:
+
 - **Model Accuracy**: Menunjukkan performa training vs validation
 - **Model Loss**: Menunjukkan penurunan loss selama training
 - **Confusion Matrix**: Heatmap prediksi vs actual
@@ -142,6 +150,7 @@ Model menghasilkan visualisasi untuk:
 ### Analisis Per Kelas
 
 Classification report menampilkan:
+
 - **Precision**: Akurasi prediksi positif
 - **Recall**: Kemampuan mendeteksi setiap kelas
 - **F1-Score**: Rata-rata harmonik precision dan recall
@@ -152,6 +161,7 @@ Classification report menampilkan:
 ## 🚀 Instalasi dan Setup
 
 ### Prerequisites
+
 - Python 3.7+
 - pip atau conda
 - GPU (optional, untuk training lebih cepat)
@@ -159,11 +169,13 @@ Classification report menampilkan:
 ### Instalasi Dependencies
 
 1. **Clone atau download repository**
+
    ```bash
    cd path/to/project
    ```
 
 2. **Install packages yang diperlukan**
+
    ```bash
    pip install -r requirements.txt
    ```
@@ -175,6 +187,7 @@ Classification report menampilkan:
    ```
 
 ### Requirements
+
 ```
 tensorflow      # Deep Learning framework
 numpy          # Numerical computations
@@ -189,11 +202,13 @@ tensorflowjs   # Convert model untuk web
 ### Cara Menjalankan Notebook
 
 1. **Setup environment**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 2. **Buka notebook di Jupyter/Colab**
+
    ```bash
    jupyter notebook notebook.ipynb
    ```
@@ -237,6 +252,7 @@ print(f"Kelas: {predicted_class}, Confidence: {confidence:.2%}")
 Proyek ini menghasilkan model dalam berbagai format untuk deployment:
 
 ### 1. SavedModel (TensorFlow Format)
+
 ```
 saved_model/
 ├── fingerprint.pb           # Fingerprint untuk verifikasi
@@ -247,11 +263,13 @@ saved_model/
 ```
 
 **Penggunaan**:
+
 ```python
 model = tf.keras.models.load_model('saved_model/')
 ```
 
 ### 2. TensorFlow Lite (TFLite)
+
 ```
 tflite/
 └── model.tflite             # Model untuk mobile/embedded
@@ -261,6 +279,7 @@ tflite/
 **Penggunaan**: Android/iOS apps dengan TFLite runtime
 
 ### 3. TensorFlow.js (Web Format)
+
 ```
 tfjs_model/
 └── model.json               # Model definition untuk web
@@ -269,6 +288,7 @@ tfjs_model/
 **Penggunaan**: Deployment di browser dengan JavaScript
 
 ### 4. Best Model (H5 Format)
+
 ```
 best_model.h5               # Model terbaik dari training
 ```
@@ -301,35 +321,39 @@ submission/
 
 ## 🔧 Technologies & Libraries
 
-| Technology | Versi | Fungsi |
-|-----------|-------|--------|
-| **TensorFlow** | 2.x | Deep Learning framework |
-| **Keras** | Built-in | High-level API |
-| **NumPy** | Latest | Array operations |
-| **Matplotlib** | Latest | Visualization |
-| **Scikit-learn** | Latest | Metrics (confusion matrix, etc) |
-| **Pillow** | Latest | Image processing |
+| Technology       | Versi    | Fungsi                          |
+| ---------------- | -------- | ------------------------------- |
+| **TensorFlow**   | 2.x      | Deep Learning framework         |
+| **Keras**        | Built-in | High-level API                  |
+| **NumPy**        | Latest   | Array operations                |
+| **Matplotlib**   | Latest   | Visualization                   |
+| **Scikit-learn** | Latest   | Metrics (confusion matrix, etc) |
+| **Pillow**       | Latest   | Image processing                |
 
 ---
 
 ## 📚 Metode & Teknik yang Digunakan
 
 ### 1. Transfer Learning
+
 - Menggunakan MobileNetV2 pre-trained dari ImageNet
 - Freeze base model layers untuk mempercepat training
 - Fine-tune dengan dataset spesifik
 
 ### 2. Data Augmentation
+
 - Meningkatkan variasi data training
 - Mengurangi overfitting
 - Meningkatkan generalisasi model
 
 ### 3. Regularization
+
 - Dropout (0.5) untuk mengurangi overfitting
 - Early stopping untuk mencegah overtraining
 - Learning rate reduction untuk fine-tuning
 
 ### 4. Optimization
+
 - Adam optimizer dengan custom learning rate
 - Batch processing (batch size 32)
 - Model checkpointing untuk menyimpan best weights
@@ -339,6 +363,7 @@ submission/
 ## 👤 Penulis
 
 **M. Sobahus Sururin Ni'am**
+
 - Email: sobahusn27@gmail.com
 - Dicoding: [sobahusn](https://www.dicoding.com/users/sobahusn/)
 
