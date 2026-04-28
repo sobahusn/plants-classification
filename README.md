@@ -4,7 +4,7 @@
 
 ---
 
-## 📋 Daftar Isi
+## Daftar Isi
 
 - [Tentang Proyek](#tentang-proyek)
 - [Dataset](#dataset)
@@ -16,9 +16,7 @@
 - [Struktur Proyek](#struktur-proyek)
 - [Penulis](#penulis)
 
----
-
-## 🎯 Tentang Proyek
+## Tentang Proyek
 
 Proyek ini adalah implementasi **Deep Learning** untuk klasifikasi gambar jenis-jenis tanaman secara otomatis. Model dilatih menggunakan dataset publik dari Kaggle yang berisi ribuan gambar tanaman dari berbagai spesies.
 
@@ -29,9 +27,7 @@ Proyek ini adalah implementasi **Deep Learning** untuk klasifikasi gambar jenis-
 - Mengoptimalkan model untuk deployment di berbagai platform (web, mobile)
 - Menerapkan best practices dalam deep learning (data augmentation, callbacks, transfer learning)
 
----
-
-## 📊 Dataset
+## Dataset
 
 ### Sumber Data
 
@@ -67,9 +63,7 @@ Model menggunakan augmentasi data untuk meningkatkan generalisasi:
 - RandomZoom(0.2)              # Zoom hingga 20%
 ```
 
----
-
-## 🏗️ Arsitektur Model
+## Arsitektur Model
 
 ### Model Base: MobileNetV2 (Transfer Learning)
 
@@ -126,8 +120,6 @@ Untuk mengoptimalkan training, digunakan 3 callbacks utama:
    - Menyimpan model terbaik ke `best_model.h5`
    - Save best only: True
 
----
-
 ## 📈 Hasil dan Performa
 
 ### Metriks Evaluasi
@@ -155,8 +147,6 @@ Classification report menampilkan:
 - **Recall**: Kemampuan mendeteksi setiap kelas
 - **F1-Score**: Rata-rata harmonik precision dan recall
 - **Support**: Jumlah sampel per kelas
-
----
 
 ## 🚀 Instalasi dan Setup
 
@@ -194,8 +184,6 @@ numpy          # Numerical computations
 matplotlib     # Data visualization
 tensorflowjs   # Convert model untuk web
 ```
-
----
 
 ## 💻 Penggunaan
 
@@ -245,8 +233,6 @@ confidence = tf.reduce_max(prediction[0]).numpy()
 print(f"Kelas: {predicted_class}, Confidence: {confidence:.2%}")
 ```
 
----
-
 ## 📦 Output Model
 
 Proyek ini menghasilkan model dalam berbagai format untuk deployment:
@@ -295,9 +281,7 @@ best_model.h5               # Model terbaik dari training
 
 **Penggunaan**: Loading cepat, kompatibel dengan berbagai framework
 
----
-
-## 📁 Struktur Proyek
+## Struktur Proyek
 
 ```
 submission/
@@ -317,9 +301,7 @@ submission/
     └── model.json
 ```
 
----
-
-## 🔧 Technologies & Libraries
+## Technologies & Libraries
 
 | Technology       | Versi    | Fungsi                          |
 | ---------------- | -------- | ------------------------------- |
@@ -329,8 +311,6 @@ submission/
 | **Matplotlib**   | Latest   | Visualization                   |
 | **Scikit-learn** | Latest   | Metrics (confusion matrix, etc) |
 | **Pillow**       | Latest   | Image processing                |
-
----
 
 ## 📚 Metode & Teknik yang Digunakan
 
@@ -358,8 +338,6 @@ submission/
 - Batch processing (batch size 32)
 - Model checkpointing untuk menyimpan best weights
 
----
-
 ## 👤 Penulis
 
 **M. Sobahus Sururin Ni'am**
@@ -373,14 +351,6 @@ submission/
 
 Proyek ini dibuat sebagai bagian dari Dicoding Bootcamp - Belajar Fundamental Deep Learning.
 
----
-
-## 🙏 Acknowledgments
-
 - **Dataset**: [Kaggle - Plants Classification by marquis03](https://www.kaggle.com/datasets/marquis03/plants-classification)
 - **Framework**: TensorFlow/Keras
 - **Pre-trained Model**: MobileNetV2 dari ImageNet
-
----
-
-**Last Updated**: April 2026
