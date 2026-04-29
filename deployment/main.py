@@ -11,6 +11,10 @@ import numpy as np
 from PIL import Image
 import tensorflow as tf
 import pandas as pd
+import os
+
+# Path model relatif terhadap lokasi file main.py ini
+MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "model", "saved_model")
 
 
 # ============================================================
@@ -60,7 +64,7 @@ class_names = [
 @st.cache_resource
 def load_model():
     # tf.saved_model.load memuat model dari folder saved_model
-    return tf.saved_model.load("./model/saved_model")
+    return tf.saved_model.load(MODEL_PATH)
 
 
 def main():
