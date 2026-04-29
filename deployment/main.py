@@ -14,7 +14,9 @@ import pandas as pd
 import os
 
 # Path model relatif terhadap lokasi file main.py ini
-MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "model", "saved_model")
+MODEL_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "model", "saved_model"
+)
 
 
 # ============================================================
