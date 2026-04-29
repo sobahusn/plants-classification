@@ -34,17 +34,51 @@ Proyek ini adalah implementasi **Deep Learning** untuk klasifikasi gambar jenis-
 - **Platform**: Kaggle
 - **Dataset**: [Plants Classification - marquis03/plants-classification](https://www.kaggle.com/datasets/marquis03/plants-classification)
 - **Jumlah Gambar**: Ribuan gambar tanaman
-- **Jumlah Kelas**: Multiple plant species
+- **Jumlah Kelas**: 30 jenis tanaman
 - **Format File**: JPEG/PNG
 - **Resolusi**: Distandarisasi menjadi 224x224 piksel
 
+### Daftar Kelas Tanaman (30 Classes)
+
+```
+Aloevera        Banana          Bilimbi         Cantaloupe      Cassava
+Coconut         Corn            Cucumber        Curcuma         Eggplant
+Galangal        Ginger          Guava           Kale            Longbeans
+Mango           Melon           Orange          Paddy           Papaya
+Peperchili      Pineapple       Pomelo          Shallot         Soybeans
+Spinach         Sweetpotatoes   Tobacco         Waterapple      Watermelon
+```
+
 ### Pembagian Data
+
+Proses splitting data dilakukan secara otomatis menggunakan `tf.keras.utils.image_dataset_from_directory`:
+
+1. **Penggabungan Dataset**: Folder `val` dan `test` digabungkan ke dalam folder `combined_val_test_ds`
+2. **Automatic Split**:
+   - **Training**: 80% dari total data
+   - **Validation**: 10% dari total data
+   - **Test**: 10% dari total data
 
 ```
 Dataset
-├── train/        # Data training (60%)
-├── val/          # Data validation (20%)
-└── test/         # Data testing (20%)
+├── train/                    # Data training + val + test (digabung)
+│   └── [30 plant classes]/
+└── combined_val_test_ds/     # Backup data asli val+test
+    └── [30 plant classes]/
+```
+
+```python
+# 80% untuk Training
+train_ds = image_dataset_from_directory(
+    ..., validation_split=0.2, subset="training", ...
+)
+
+# 20% sisanya, kemudian dibagi menjadi 50% val dan 50% test
+temp_ds = image_dataset_from_directory(
+    ..., validation_split=0.2, subset="validation", ...
+)
+val_ds = temp_ds.take(total_batches // 2)     # 10%
+test_ds = temp_ds.skip(total_batches // 2)    # 10%
 ```
 
 ### Preprocessing Data
@@ -216,90 +250,259 @@ Untuk melakukan prediksi pada gambar baru:
 ```python
 import tensorflow as tf
 from PIL import Image
+import numpy as np
 
-# Load model
+# Daftar kelas tanaman
+class_names = [
+    'aloevera', 'banana', 'bilimbi', 'cantaloupe', 'cassava', 'coconut',
+    'corn', 'cucumber', 'curcuma', 'eggplant', 'galangal', 'ginger',
+    'guava', 'kale', 'longbeans', 'mango', 'melon', 'orange', 'paddy',
+    'papaya', 'peperchili', 'pineapple', 'pomelo', 'shallot', 'soybeans',
+    'spinach', 'sweetpotatoes', 'tobacco', 'waterapple', 'watermelon'
+]
+
+# Load model (pilih salah satu)
+# Option 1: Load dari H5
 model = tf.keras.models.load_model('best_model.h5')
+
+# Option 2: Load dari SavedModel
+# model = tf.keras.models.load_model('saved_model/')
 
 # Load dan preprocessing gambar
 img = Image.open('plant_image.jpg').resize((224, 224))
-img_array = tf.keras.preprocessing.image.img_to_array(img)
-img_array = tf.expand_dims(img_array, 0)
+img_array = np.array(img) / 255.0  # Normalisasi
+img_array = np.expand_dims(img_array, 0)  # Add batch dimension
 
 # Prediksi
-prediction = model.predict(img_array)
-predicted_class = class_names[tf.argmax(prediction[0])]
-confidence = tf.reduce_max(prediction[0]).numpy()
+predictions = model.predict(img_array)
+predicted_class_idx = np.argmax(predictions[0])
+predicted_class = class_names[predicted_class_idx]
+confidence = predictions[0][predicted_class_idx]
 
-print(f"Kelas: {predicted_class}, Confidence: {confidence:.2%}")
+print(f"Kelas: {predicted_class}")
+print(f"Confidence: {confidence:.2%}")
+
+# Tampilkan top-3 predictions
+top_3_idx = np.argsort(predictions[0])[-3:][::-1]
+print("\nTop 3 Predictions:")
+for idx in top_3_idx:
+    print(f"  {class_names[idx]}: {predictions[0][idx]:.2%}")
+```
+
+### Deployment di Mobile (TFLite)
+
+Untuk aplikasi Android/iOS, gunakan model TFLite:
+
+**Android (Kotlin)**:
+
+```kotlin
+val interpreter = Interpreter(loadModelFile())
+val input = Array(1) { FloatArray(224 * 224 * 3) }
+val output = Array(1) { FloatArray(30) }
+interpreter.run(input, output)
+```
+
+**iOS (Swift)**:
+
+```swift
+let interpreter = try Interpreter(modelPath: modelPath)
+try interpreter.invoke()
+let output = try interpreter.output(at: 0).data
+```
+
+### Deployment di Web (TFJS)
+
+Untuk web application dengan JavaScript:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+<script>
+  async function predictPlant(imagePath) {
+    // Load model
+    const model = await tf.loadGraphModel("file://tfjs_model/model.json");
+
+    // Prepare image
+    const img = new Image();
+    img.src = imagePath;
+    await new Promise((resolve) => (img.onload = resolve));
+
+    // Preprocess
+    let tensor = tf.browser
+      .fromPixels(img)
+      .resizeNearestNeighbor([224, 224])
+      .toFloat()
+      .div(255);
+    tensor = tensor.expandDims(0);
+
+    // Predict
+    const predictions = model.predict(tensor);
+    const classIdx = predictions.argMax(-1).dataSync()[0];
+    const confidence = predictions.dataSync()[classIdx];
+
+    console.log(`Plant: ${classNames[classIdx]}`);
+    console.log(`Confidence: ${(confidence * 100).toFixed(2)}%`);
+
+    tensor.dispose();
+  }
+</script>
 ```
 
 ## 📦 Output Model
 
-Proyek ini menghasilkan model dalam berbagai format untuk deployment:
+Proyek ini menghasilkan model dalam berbagai format untuk deployment di berbagai platform:
 
 ### 1. SavedModel (TensorFlow Format)
 
+Format standar TensorFlow yang universal dan production-ready.
+
 ```
 saved_model/
-├── fingerprint.pb           # Fingerprint untuk verifikasi
-├── saved_model.pb           # Model definition
+├── fingerprint.pb           # Hash untuk verifikasi integritas model
+├── saved_model.pb           # Model graph definition
 └── variables/
-    ├── variables.index      # Index variabel
-    └── variables.data-*     # Data variabel
+    ├── variables.index      # Index untuk mengakses variabel
+    └── variables.data-*     # Data weight dan bias (terkompresi)
 ```
+
+**Karakteristik**:
+
+- Format standar untuk production
+- Kompatibel dengan TensorFlow Serving
+- Ukuran: Besar (full precision)
 
 **Penggunaan**:
 
 ```python
+import tensorflow as tf
+
+# Load model
 model = tf.keras.models.load_model('saved_model/')
+
+# Inference
+predictions = model.predict(image_array)
 ```
 
 ### 2. TensorFlow Lite (TFLite)
 
+Dioptimalkan untuk perangkat mobile dan embedded dengan latency rendah.
+
 ```
 tflite/
-└── model.tflite             # Model untuk mobile/embedded
+└── model.tflite             # Single file model (quantized)
 ```
 
-**Keuntungan**: Ukuran lebih kecil, latency rendah, cocok untuk mobile
-**Penggunaan**: Android/iOS apps dengan TFLite runtime
+**Karakteristik**:
+
+- Ukuran sangat kecil (~2-5MB)
+- Latency rendah
+- Memory footprint minimal
+- Cocok untuk: Android, iOS, Raspberry Pi, Edge devices
+
+**Keuntungan**:
+
+- On-device inference (tidak perlu internet)
+- Privacy terjaga (data tidak dikirim ke server)
+- Performa real-time
+
+**Penggunaan** (Android):
+
+```java
+// TensorFlow Lite Interpreter
+Interpreter tflite = new Interpreter(modelBuffer);
+float[][] output = new float[1][num_classes];
+tflite.run(inputArray, output);
+```
 
 ### 3. TensorFlow.js (Web Format)
 
+Untuk deployment di browser menggunakan JavaScript.
+
 ```
 tfjs_model/
-└── model.json               # Model definition untuk web
+├── model.json               # Model definition dan metadata
+└── weights*.bin             # Model weights (dapat multiple parts)
 ```
 
-**Penggunaan**: Deployment di browser dengan JavaScript
+**Karakteristik**:
+
+- Berjalan di browser (client-side)
+- Tidak perlu backend
+- Ukuran medium (~5-10MB)
+
+**Penggunaan** (JavaScript):
+
+```javascript
+// Load model
+const model = await tf.loadGraphModel("file://tfjs_model/model.json");
+
+// Inference
+const predictions = model.predict(inputTensor);
+```
 
 ### 4. Best Model (H5 Format)
 
+Model dalam format Keras H5 - model terbaik dari hasil training.
+
 ```
-best_model.h5               # Model terbaik dari training
+best_model.h5               # Single file model
 ```
 
-**Penggunaan**: Loading cepat, kompatibel dengan berbagai framework
+**Karakteristik**:
+
+- Kompatibilitas tinggi
+- Loading cepat
+- Format legacy namun masih widely used
+
+**Penggunaan**:
+
+```python
+model = tf.keras.models.load_model('best_model.h5')
+```
+
+---
+
+### Ringkasan Format Model
+
+| Format         | Ukuran  | Latency | Platform       | Use Case               |
+| -------------- | ------- | ------- | -------------- | ---------------------- |
+| **SavedModel** | ~50MB   | Sedang  | Server/Backend | Production deployment  |
+| **TFLite**     | ~2-5MB  | Rendah  | Mobile/IoT     | On-device inference    |
+| **TFJS**       | ~5-10MB | Sedang  | Web Browser    | Real-time web app      |
+| **H5**         | ~50MB   | Sedang  | Python/Keras   | Development & research |
 
 ## Struktur Proyek
 
 ```
 submission/
-├── notebook.ipynb              # Main notebook dengan full code
-├── README.md                   # Dokumentasi proyek (file ini)
-├── requirements.txt            # Dependencies list
-├── best_model.h5              # Model terbaik (H5 format)
-├── saved_model/               # SavedModel format
-│   ├── fingerprint.pb
-│   ├── saved_model.pb
+├── notebook.ipynb                          # Main notebook dengan full code
+├── README.md                               # Dokumentasi proyek (file ini)
+├── requirements.txt                        # Dependencies list
+├── best_model.h5                           # Model terbaik (H5 format)
+│
+├── saved_model/                            # SavedModel format (TensorFlow)
+│   ├── fingerprint.pb                      # Fingerprint untuk verifikasi
+│   ├── saved_model.pb                      # Model definition
 │   └── variables/
-│       ├── variables.index
-│       └── variables.data-00000-of-00001
-├── tflite/                    # TensorFlow Lite format
-│   └── model.tflite
-└── tfjs_model/                # TensorFlow.js format
-    └── model.json
+│       ├── variables.index                 # Index variabel model
+│       └── variables.data-00000-of-00001   # Data variabel terkompresi
+│
+├── tflite/                                 # TensorFlow Lite (Mobile/Edge)
+│   └── model.tflite                        # Model untuk Android/iOS/Embedded
+│
+└── tfjs_model/                             # TensorFlow.js (Web/Browser)
+    ├── model.json                          # Model definition untuk web
+    └── weights*.bin                        # Bobot model (dapat multi-part)
 ```
+
+### Penjelasan Output Model
+
+| Format         | Lokasi          | Ukuran | Kegunaan                             |
+| -------------- | --------------- | ------ | ------------------------------------ |
+| **SavedModel** | `saved_model/`  | Besar  | Production, inference di backend     |
+| **TFLite**     | `tflite/`       | Kecil  | Mobile apps, embedded devices        |
+| **TFLite**     | `tflite/`       | Kecil  | Mobile apps, embedded devices        |
+| **TFJS**       | `tfjs_model/`   | Medium | Web browsers, client-side prediction |
+| **H5**         | `best_model.h5` | Besar  | Quick loading, model checkpoints     |
 
 ## Technologies & Libraries
 
