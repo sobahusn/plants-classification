@@ -10,6 +10,7 @@ dependencies = [
     "pillow>=12.2.0",
     "scikit-learn>=1.8.0",
     "seaborn>=0.13.2",
+    "split-folder>=0.1.1",
     "streamlit>=1.56.0",
     "streamlit-extras>=1.5.0",
     "tensorflow>=2.21.0",
